@@ -59,6 +59,7 @@ class TelegramChannelScraper:
         """
         entity = await client.get_entity(channel_username)
         channel_title = entity.title  # Extract the channel's title
+        channel_id = entity.id  # Extract the channel's ID
 
         self.logger.info(f"Scraping all history from {channel_username}...")  # Log the start of scraping
 
@@ -67,8 +68,8 @@ class TelegramChannelScraper:
             async for message in client.iter_messages(entity, limit=None):
                 media_path = await self.download_media(client, message, channel_username)
                 
-                # Write the data to the CSV file
-                writer.writerow([channel_title, channel_username, message.id, message.message, message.date, media_path])
+                # Write the data to the CSV file, including channel_id
+                writer.writerow([channel_title, channel_username, channel_id, message.id, message.message, message.date, media_path])
 
             self.logger.info(f"Successfully scraped all history from {channel_username}")  # Log success message
         except Exception as e:
@@ -107,7 +108,7 @@ class TelegramChannelScraper:
         async with TelegramClient(self.session_name, self.api_id, self.api_hash) as client:
             with open(self.csv_file, 'w', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
-                writer.writerow(['Channel Title', 'Channel Username', 'ID', 'Message', 'Date', 'Media Path'])
+                writer.writerow(['channel_title', 'channel_username', 'channel_id', 'message_id', 'message', 'date', 'media_path'])
 
                 for channel in self.channels:
                     await self.scrape_channel(client, channel, writer)
@@ -123,12 +124,7 @@ if __name__ == "__main__":
 
     # List of channels to scrape
     channels_to_scrape = [
-        'https://t.me/DoctorsET',
-        'https://t.me/lobelia4cosmetics',
-        'https://t.me/yetenaweg',
-        'https://t.me/EAHCI',
-        'https://t.me/CheMed123',
-        'https://t.me/lobelia4cosmetics'
+        '@lobelia4cosmetics',
         # Add more channels as needed
     ]
 
