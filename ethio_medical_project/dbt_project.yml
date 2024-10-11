@@ -1,0 +1,15 @@
+name: ethio_medical_project
+version: 1.0.0
+config-version: 2
+
+profile: ethio_medical_profile  # This should match the profile name in profiles.yml
+
+# Optional: Define where your models are stored
+model-paths: ["models"]
+
+# Additional settings for your models
+models:
+  ethio_medical_project:
+    +materialized: view
+
+
