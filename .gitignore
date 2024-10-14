@@ -11,3 +11,6 @@ data.zip
 README.pdf
 logs/
 *.log
+.cometml-runs/
+yolov5/
+medical-products-1/
