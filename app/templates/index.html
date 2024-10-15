@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Data Warehouse</title>
+  
+     <link rel="stylesheet" href="/static/styles.css"> <!-- Link to the CSS file -->
+</head>
+<body>
+
+<header>
+    <h1>Medical Data Warehouse</h1>
+</header>
+
+<nav>
+    <a href="/raw-data">Get Raw Data</a>
+    <a href="/clean-raw-data">Clean Raw Data</a>
+    <a href="/transform-data">Transform Data</a>
+    <a href="/load-data">Load Data</a>
+    <a href="/explore-data">Explore Data</a>
+    <a href="/search-product">Search by Product</a>
+    <a href="/detect-object">Detect Product Object</a>
+</nav>
+
+<main>
+    <div class="search-container">
+        <h2>Search for a Product</h2>
+        <form id="searchForm">
+            <input type="text" id="productInput" placeholder="Enter product name" required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+   
+
+    <!-- Results Section - Initially hidden -->
+    <div id="searchResults" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Telegram Name</th>
+                    <th>Product Id</th>
+                    <th>Product Name</th>
+                    <th>Price (Birr)</th>
+                </tr>
+            </thead>
+            <tbody id="resultsBody">
+                <!-- Dynamically generated rows will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+</main>
+
+
+<footer>
+    <p>&copy; 2024 Medical Data Warehouse</p>
+</footer>
+
+<script>
+    document.getElementById('searchForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // Prevent the default form submission
+        const productName = document.getElementById('productInput').value.trim();  // Capture input value
+    
+        // Ensure the input is not empty
+        if (!productName) {
+            alert('Please enter a product name');
+            return;
+        }
+    
+        // Show loading indication
+        const resultsDiv = document.getElementById('searchResults');
+        resultsDiv.style.display = 'none'; // Hide results initially
+        const loadingMessage = document.createElement('div');
+        loadingMessage.textContent = 'Loading results...';
+        resultsDiv.appendChild(loadingMessage);
+    
+        fetch(`http://127.0.0.1:8000/search-product/?product_name=${encodeURIComponent(productName)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data); // Log the response data to verify the structure
+    
+                // Clear previous results
+                const resultsBody = document.getElementById('resultsBody');
+                resultsBody.innerHTML = ''; // Clear previous results
+    
+                // Check if results are returned
+                if (data.length > 0) {
+                    resultsDiv.style.display = 'block'; // Show the results table
+                    data.forEach(product => {
+                        const row = document.createElement('tr');
+                        const channelCell = document.createElement('td');
+                        const productIdCell = document.createElement('td');
+                        const productCell = document.createElement('td');
+                        const priceCell = document.createElement('td');
+    
+                        // Accessing properties from the product object
+                        channelCell.textContent = product.channel_title !== null ? product.channel_title : 'N/A'; // Ensure channel_id is not null
+                        productIdCell.textContent = product.product_id || 'N/A'; // Ensure product_name is not null
+                        productCell.textContent = product.product_name || 'N/A'; // Ensure product_name is not null
+                        priceCell.textContent = product.price_in_birr !== null ? `${product.price_in_birr} Birr` : 'Price not available'; // Handle null value
+    
+                        row.appendChild(channelCell);
+                        row.appendChild(productIdCell);
+                        row.appendChild(productCell);
+                        row.appendChild(priceCell);
+    
+                        resultsBody.appendChild(row);
+                    });
+                } else {
+                    resultsDiv.style.display = 'block'; // Show the results table
+                    resultsBody.innerHTML = '<tr><td colspan="3">No products found.</td></tr>'; // Show message in table
+                }
+                resultsDiv.removeChild(loadingMessage); // Remove loading message
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while searching for the product.');
+                resultsDiv.removeChild(loadingMessage); // Remove loading message
+            });
+    });
+    
+</script>
+
+</body>
+</html>
