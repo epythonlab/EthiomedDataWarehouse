@@ -2,6 +2,10 @@
 
 A comprehensive data warehouse solution for Ethiopian medical business data scraped from Telegram channels, including data scraping, object detection with YOLO, and ETL/ELT processes.
 
+# Screenshot that shows the FastApi Call
+
+![alt text](image.png)
+
 ## Project Directory Structure
 
 The repository is organized into the following directories:
